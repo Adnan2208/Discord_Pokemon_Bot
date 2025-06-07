@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits, Message, messageLink } from 'discord.js';
 import "dotenv/config"
 
 
@@ -15,6 +15,7 @@ let Count = 0
 let IntervalID = null
 let Points = 0
 let TotalPoints = 0
+
 function CalcPoints(){
     if(Count <= 5){
         return Points = 30
@@ -30,7 +31,24 @@ function CalcPoints(){
     }
 }
 
+function reset(){
+    clearInterval(IntervalID)
+    PokemonName = null
+    PokemonCalled = false
+    Count = 0
+    IntervalID = null
+    Points = 0
+    TotalPoints = 0
+    
+}
+
 async function pokemonFetching() {
+
+    if(TotalPoints >= 100){
+        reset()
+        return "Game Over"
+    }
+
     Count = 0
     IntervalID = setInterval(() => {
         Count +=1 
