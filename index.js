@@ -1,6 +1,5 @@
-import { Client, GatewayIntentBits, Message, messageLink } from 'discord.js';
-import "dotenv/config"
-
+import { Client, GatewayIntentBits } from 'discord.js';
+import 'dotenv/config';
 
 const client = new Client({ intents: [
     GatewayIntentBits.Guilds,
@@ -15,6 +14,7 @@ let Count = 0
 let IntervalID = null
 let Points = 0
 let TotalPoints = 0
+let TotalAttempts = 0
 
 function CalcPoints(){
     if(Count <= 5){
@@ -39,14 +39,15 @@ function reset(){
     IntervalID = null
     Points = 0
     TotalPoints = 0
+    TotalAttempts =0 
     
 }
 
 async function pokemonFetching() {
-
     if(TotalPoints >= 100){
+        const attempt = TotalAttempts / 2 
         reset()
-        return "Game Over"
+        return `Game Over and total attemps taken is ${attempt} `
     }
 
     Count = 0
@@ -69,6 +70,7 @@ client.on("messageCreate", async (message) =>{
     }
 
     if(message.content.toUpperCase() == PokemonName){
+        TotalAttempts += 1;
         PokemonCalled = false
         TotalPoints += CalcPoints()
         message.reply(`${message.author} caught ${PokemonName} in ${Count} seconds \n Points scored is: ${CalcPoints()} & your total points are ${TotalPoints}`)
@@ -77,9 +79,16 @@ client.on("messageCreate", async (message) =>{
     }
 
     if(message.content == "skip" && PokemonCalled == true){
+        TotalAttempts += 1;
         clearInterval(IntervalID)
         message.reply(await pokemonFetching())
     }
+
+    const IncorrectAttempt = message.content != "pokemon" && message.content.toUpperCase != PokemonName && message.content != "skip"; 
+    if(IncorrectAttempt && PokemonCalled){
+        TotalAttempts +=1;
+    }
+
 })
 
 client.login(process.env.DiscordBotKey)
